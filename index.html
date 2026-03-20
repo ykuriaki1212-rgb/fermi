@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>フェルミ推定トレーニング | 中小企業診断士試験対策</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700;900&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0a1628;--navy-light:#132039;--navy-mid:#1a2d4d;
+  --gold:#c5a44e;--gold-light:#e2ca7a;--gold-dim:rgba(197,164,78,.12);
+  --slate:#8896a7;--slate-light:#b0bcc9;
+  --white:#f4f6f8;--pure-white:#fff;
+  --green:#2ecc71;--green-bg:rgba(46,204,113,.1);
+  --red:#e74c3c;--red-bg:rgba(231,76,60,.1);
+  --blue:#3498db;--blue-bg:rgba(52,152,219,.1);
+  --card-bg:#0f1f38;--card-border:#1e3456;
+  --radius:10px;
+  --shadow:0 4px 24px rgba(0,0,0,.3);
+}
+html{font-size:15px;scroll-behavior:smooth}
+body{
+  font-family:'Noto Sans JP','IBM Plex Sans',sans-serif;
+  background:var(--navy);color:var(--white);
+  min-height:100vh;line-height:1.7;
+  background-image:
+    radial-gradient(ellipse at 20% 0%,rgba(197,164,78,.06) 0%,transparent 60%),
+    radial-gradient(ellipse at 80% 100%,rgba(52,152,219,.04) 0%,transparent 60%);
+}
+.container{max-width:860px;margin:0 auto;padding:1.5rem}
+
+/* Header */
+.header{text-align:center;padding:2.5rem 0 1.5rem;position:relative}
+.header::after{content:'';display:block;width:60px;height:3px;background:var(--gold);margin:1rem auto 0;border-radius:2px}
+.header h1{
+  font-size:1.6rem;font-weight:700;letter-spacing:.08em;
+  background:linear-gradient(135deg,var(--gold-light),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.header p{color:var(--slate);font-size:.82rem;margin-top:.5rem;font-weight:300;letter-spacing:.04em}
+
+/* Navigation tabs */
+.nav{display:flex;gap:.5rem;justify-content:center;margin-bottom:2rem;flex-wrap:wrap}
+.nav-btn{
+  padding:.55rem 1.4rem;border-radius:6px;border:1px solid var(--card-border);
+  background:transparent;color:var(--slate);cursor:pointer;font-size:.82rem;
+  font-family:inherit;font-weight:500;transition:all .25s;letter-spacing:.02em;
+}
+.nav-btn:hover{border-color:var(--gold);color:var(--gold-light)}
+.nav-btn.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold)}
+
+/* Cards */
+.card{
+  background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:var(--radius);padding:1.8rem;margin-bottom:1.2rem;
+  box-shadow:var(--shadow);
+}
+
+/* Dashboard */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.8rem;margin-bottom:1.5rem}
+.stat-card{
+  background:var(--navy-light);border:1px solid var(--card-border);
+  border-radius:8px;padding:1rem 1.2rem;text-align:center;
+}
+.stat-card .num{font-size:1.8rem;font-weight:700;font-family:'JetBrains Mono',monospace}
+.stat-card .num.gold{color:var(--gold)}
+.stat-card .num.green{color:var(--green)}
+.stat-card .num.blue{color:var(--blue)}
+.stat-card .label{font-size:.72rem;color:var(--slate);margin-top:.2rem;letter-spacing:.03em}
+
+/* Progress bar */
+.progress-wrap{margin-bottom:1.5rem}
+.progress-label{display:flex;justify-content:space-between;font-size:.75rem;color:var(--slate);margin-bottom:.4rem}
+.progress-bar{height:6px;background:var(--navy-mid);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));border-radius:3px;transition:width .5s ease}
+
+/* Quiz UI */
+.q-header{display:flex;align-items:center;gap:.7rem;margin-bottom:1.2rem;flex-wrap:wrap}
+.badge{
+  padding:.2rem .7rem;border-radius:4px;font-size:.7rem;font-weight:600;letter-spacing:.04em;
+}
+.badge-industry{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(52,152,219,.25)}
+.badge-beginner{background:var(--green-bg);color:var(--green);border:1px solid rgba(46,204,113,.25)}
+.badge-intermediate{background:rgba(241,196,15,.1);color:#f1c40f;border:1px solid rgba(241,196,15,.25)}
+.badge-advanced{background:var(--red-bg);color:var(--red);border:1px solid rgba(231,76,60,.25)}
+.q-number{font-size:.75rem;color:var(--slate);margin-left:auto;font-family:'JetBrains Mono',monospace}
+
+.q-text{font-size:1.05rem;font-weight:500;line-height:1.8;margin-bottom:1.5rem;color:var(--pure-white)}
+
+/* Timer */
+.timer-wrap{display:flex;align-items:center;gap:.6rem;margin-bottom:1.3rem;padding:.6rem 1rem;background:var(--navy-mid);border-radius:6px}
+.timer-icon{font-size:1rem}
+.timer-bar-outer{flex:1;height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+.timer-bar-inner{height:100%;background:var(--gold);border-radius:3px;transition:width 1s linear}
+.timer-bar-inner.warn{background:var(--red)}
+.timer-text{font-size:.78rem;font-family:'JetBrains Mono',monospace;color:var(--slate-light);min-width:42px;text-align:right}
+
+/* Options */
+.options{display:flex;flex-direction:column;gap:.6rem}
+.opt-btn{
+  display:flex;align-items:flex-start;gap:.8rem;padding:1rem 1.2rem;
+  background:var(--navy-light);border:1.5px solid var(--card-border);
+  border-radius:8px;cursor:pointer;text-align:left;
+  font-family:inherit;font-size:.85rem;color:var(--white);
+  transition:all .2s;line-height:1.65;width:100%;
+}
+.opt-btn:hover:not(:disabled){border-color:var(--gold);background:var(--gold-dim)}
+.opt-btn .opt-label{
+  flex-shrink:0;width:26px;height:26px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:.75rem;
+  background:var(--navy-mid);border:1.5px solid var(--card-border);
+  margin-top:1px;transition:all .2s;
+}
+.opt-btn:hover:not(:disabled) .opt-label{border-color:var(--gold);color:var(--gold)}
+.opt-btn.correct{border-color:var(--green);background:var(--green-bg)}
+.opt-btn.correct .opt-label{background:var(--green);color:var(--navy);border-color:var(--green)}
+.opt-btn.wrong{border-color:var(--red);background:var(--red-bg)}
+.opt-btn.wrong .opt-label{background:var(--red);color:var(--pure-white);border-color:var(--red)}
+.opt-btn:disabled{cursor:default;opacity:.65}
+.opt-btn.correct:disabled,.opt-btn.wrong:disabled{opacity:1}
+
+/* Explanation */
+.explanation{
+  margin-top:1.5rem;padding:1.4rem;background:var(--navy-mid);
+  border-left:3px solid var(--gold);border-radius:0 8px 8px 0;
+  animation:fadeIn .4s ease;
+}
+.explanation h4{color:var(--gold);font-size:.88rem;margin-bottom:.7rem;font-weight:600;letter-spacing:.03em}
+.explanation p,.explanation li{font-size:.83rem;color:var(--slate-light);line-height:1.8}
+.explanation .formula{
+  font-family:'JetBrains Mono',monospace;font-size:.8rem;
+  background:var(--navy);padding:.8rem 1rem;border-radius:6px;margin:.7rem 0;
+  color:var(--gold-light);border:1px solid var(--card-border);
+  overflow-x:auto;white-space:pre-wrap;word-break:break-all;
+}
+.explanation ul{padding-left:1.2rem;margin:.5rem 0}
+.explanation li{margin-bottom:.3rem}
+
+.next-btn{
+  margin-top:1.3rem;padding:.7rem 2rem;
+  background:linear-gradient(135deg,var(--gold),var(--gold-light));
+  color:var(--navy);border:none;border-radius:6px;
+  font-family:inherit;font-size:.88rem;font-weight:600;
+  cursor:pointer;transition:all .2s;letter-spacing:.03em;
+}
+.next-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(197,164,78,.3)}
+
+/* History */
+.history-controls{display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center}
+.history-controls select,.history-controls button{
+  padding:.45rem .8rem;border-radius:5px;font-family:inherit;font-size:.78rem;
+  border:1px solid var(--card-border);background:var(--navy-light);color:var(--white);cursor:pointer;
+}
+.history-controls button:hover{border-color:var(--gold)}
+.del-all-btn{color:var(--red)!important;border-color:rgba(231,76,60,.3)!important}
+.del-all-btn:hover{background:var(--red-bg)!important}
+
+.history-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.history-table th{
+  text-align:left;padding:.6rem .8rem;color:var(--slate);font-weight:500;
+  border-bottom:1px solid var(--card-border);font-size:.72rem;letter-spacing:.04em;
+}
+.history-table td{padding:.55rem .8rem;border-bottom:1px solid rgba(30,52,86,.5);vertical-align:middle}
+.history-table tr:hover td{background:rgba(255,255,255,.02)}
+.result-correct{color:var(--green);font-weight:600}
+.result-wrong{color:var(--red);font-weight:600}
+.del-row-btn{
+  background:none;border:1px solid rgba(231,76,60,.25);color:var(--red);
+  padding:.2rem .5rem;border-radius:4px;cursor:pointer;font-size:.7rem;font-family:inherit;
+}
+.del-row-btn:hover{background:var(--red-bg)}
+
+.empty-state{text-align:center;padding:2.5rem 1rem;color:var(--slate)}
+.empty-state .icon{font-size:2.5rem;margin-bottom:.7rem;opacity:.5}
+.empty-state p{font-size:.85rem}
+
+/* Start screen */
+.start-screen{text-align:center;padding:1rem 0}
+.start-screen h2{font-size:1.2rem;font-weight:600;margin-bottom:.8rem}
+.start-screen p{color:var(--slate);font-size:.85rem;margin-bottom:1.5rem;line-height:1.8}
+.start-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.7rem;margin-bottom:1.5rem;text-align:left}
+.start-grid .item{padding:.8rem 1rem;background:var(--navy-mid);border-radius:6px;font-size:.8rem;border:1px solid var(--card-border)}
+.start-grid .item strong{color:var(--gold);display:block;margin-bottom:.2rem;font-size:.75rem;letter-spacing:.03em}
+.start-btn{
+  padding:.8rem 3rem;background:linear-gradient(135deg,var(--gold),var(--gold-light));
+  color:var(--navy);border:none;border-radius:8px;font-family:inherit;
+  font-size:1rem;font-weight:700;cursor:pointer;transition:all .25s;letter-spacing:.05em;
+}
+.start-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(197,164,78,.35)}
+
+/* Filter chips */
+.filter-chips{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem}
+.chip{
+  padding:.3rem .7rem;border-radius:20px;font-size:.72rem;
+  border:1px solid var(--card-border);background:transparent;
+  color:var(--slate);cursor:pointer;font-family:inherit;transition:all .2s;
+}
+.chip:hover,.chip.active{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
+
+/* Complete screen */
+.complete-screen{text-align:center;padding:2rem 0}
+.complete-screen h2{font-size:1.4rem;font-weight:700;color:var(--gold);margin-bottom:.5rem}
+.complete-screen .big-score{font-size:3.5rem;font-weight:900;font-family:'JetBrains Mono',monospace;margin:1rem 0}
+
+/* Animations */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn .35s ease}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--navy)}
+::-webkit-scrollbar-thumb{background:var(--navy-mid);border-radius:3px}
+
+/* Responsive */
+@media(max-width:600px){
+  html{font-size:14px}
+  .container{padding:1rem}
+  .card{padding:1.3rem}
+  .q-header{gap:.4rem}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .opt-btn{padding:.8rem 1rem;font-size:.82rem}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>フェルミ推定トレーニング</h1>
+    <p>中小企業診断士試験対策 — 論理構築力 × 数値感覚</p>
+  </div>
+
+  <div class="nav">
+    <button class="nav-btn active" onclick="showPage('home')">ダッシュボード</button>
+    <button class="nav-btn" onclick="showPage('quiz')">演習開始</button>
+    <button class="nav-btn" onclick="showPage('history')">学習履歴</button>
+  </div>
+
+  <div id="page-home"></div>
+  <div id="page-quiz" style="display:none"></div>
+  <div id="page-history" style="display:none"></div>
+</div>
+
+<script>
+// ===== QUESTION DATA =====
+const QUESTIONS = [
+// ── 製造業 ──
+{
+  id:1, industry:"製造業", level:"初級",
+  question:"日本国内における自動車部品（ブレーキパッド）の年間市場規模をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"乗用車保有台数6,200万台 × 全車が毎年交換 × 単価8,000円 ≒ 約5,000億円",correct:false},
+    {label:"B",text:"乗用車6,200万台 × 交換率25%/年 × 前後4セット × 単価5,000円 ≒ 約3,100億円",correct:false},
+    {label:"C",text:"乗用車6,200万台 × 交換率25%/年 × 1セット(前輪) × 単価8,000円 ≒ 約1,240億円",correct:true},
+    {label:"D",text:"新車販売台数400万台 × 単価8,000円 ≒ 約320億円",correct:false},
+    {label:"E",text:"乗用車6,200万台 × 車検2年毎に全交換 × 単価3,000円 ≒ 約930億円",correct:false}
+  ],
+  explanation:{
+    summary:"ブレーキパッドは消耗品であり、保有台数ベースで「交換サイクル」と「1回あたりの単価」で推定します。",
+    formula:"市場規模 ≒ 保有台数 × 年間交換率 × 平均交換セット数 × セット単価\n= 6,200万台 × 25% × 1セット × 8,000円\n≒ 1,240億円",
+    points:["保有台数（≒6,200万台）は国交省統計の基本数値","ブレーキパッドの平均寿命は3〜5万km → 年間走行距離1万km前後を考慮すると年間交換率は約25%","Aは全車が毎年交換する前提で過大","Bは前後4セット全交換としており過大（通常はフロント中心）","Dは新車販売台数のみで保有台数の概念が欠落"]
+  },
+  timer:180
+},
+{
+  id:2, industry:"製造業", level:"初級",
+  question:"日本の中小製造業（従業員20人規模）1社あたりの年間電力コストをフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"月間使用量5,000kWh × 単価25円/kWh × 12ヶ月 ≒ 約1,500万円",correct:true},
+    {label:"B",text:"従業員20人 × 1人あたり月5万円 × 12ヶ月 ≒ 約1,200万円",correct:false},
+    {label:"C",text:"工場面積300坪 × 坪単価1万円/月 × 12ヶ月 ≒ 約3,600万円",correct:false},
+    {label:"D",text:"売上高2億円 × 電力コスト比率1% ≒ 約200万円",correct:false},
+    {label:"E",text:"月間使用量50,000kWh × 単価30円/kWh × 12ヶ月 ≒ 約1.8億円",correct:false}
+  ],
+  explanation:{
+    summary:"中小製造業の電力コストは、工場設備の使用電力量と電気料金単価から推定します。",
+    formula:"年間電力コスト ≒ 月間使用電力量 × 電力単価 × 12ヶ月\n= 5,000kWh × 25円 × 12 ≒ 1,500万円",
+    points:["従業員20人規模の町工場は月間3,000〜8,000kWh程度が目安","産業用電力単価は約20〜28円/kWh","Bの「1人5万円」は根拠不明のトップダウンで精度が低い","Dの売上比率1%は過少（製造業の電力費比率は3〜8%が一般的）","Eは中規模以上の工場水準で過大"]
+  },
+  timer:180
+},
+{
+  id:3, industry:"製造業", level:"初級",
+  question:"日本における産業用ロボットの年間国内出荷台数をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"製造業事業所数18万 × 導入率5% × 平均1台 ≒ 約9,000台",correct:false},
+    {label:"B",text:"製造業事業所数18万 × 導入率15% × 更新率15%/年 + 新規導入 ≒ 約5万台",correct:true},
+    {label:"C",text:"自動車工場のみ1,000工場 × 平均10台/年 ≒ 約1万台",correct:false},
+    {label:"D",text:"世界出荷台数50万台 × 日本シェア50% ≒ 約25万台",correct:false},
+    {label:"E",text:"GDP比例で米国15万台の1/3 ≒ 約5万台だが、為替補正で3万台",correct:false}
+  ],
+  explanation:{
+    summary:"産業用ロボットの出荷台数は、既存稼働台数の更新需要＋新規導入需要で推定します。",
+    formula:"国内出荷台数 ≒ 稼働台数 × 更新率 + 新規導入\n≒ (18万所 × 15% × 平均2台) × 15%/年 + 新規約1万台\n≒ 約5万台（実績値:約4.5〜5万台）",
+    points:["日本は産業用ロボット大国だが、出荷の多くは輸出","国内向けは年間約4〜5万台が実績値","Aは導入率・台数が過少","Dの世界シェア50%は輸出含めた生産シェアと混同","自動車産業以外（電機・食品等）の需要も大きい"]
+  },
+  timer:180
+},
+{
+  id:4, industry:"製造業", level:"中級",
+  question:"従業員100人規模の金属加工メーカーにおける「設備稼働率」の適正値と、稼働率1%向上による年間利益改善額をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"適正稼働率90% → 1%向上で年間売上10億円×粗利率30%×1%≒300万円の改善",correct:false},
+    {label:"B",text:"適正稼働率85% → 1%向上で固定費5億円×1%≒500万円のコスト吸収改善",correct:true},
+    {label:"C",text:"適正稼働率95% → 1%向上で人件費削減効果のみ≒100万円",correct:false},
+    {label:"D",text:"適正稼働率70% → 1%向上で外注費削減3,000万円×1%≒30万円",correct:false},
+    {label:"E",text:"適正稼働率80% → 1%向上で売上20億円×営業利益率5%×1%≒100万円",correct:false}
+  ],
+  explanation:{
+    summary:"稼働率向上は「固定費の吸収効率」改善に直結します。変動費ではなく固定費ベースで考えることがポイントです。",
+    formula:"利益改善額 ≒ 年間固定費 × 稼働率改善幅\n従業員100人 × 平均年収500万円 ＋ 設備減価償却等 ≒ 固定費約5億円\n5億円 × 1% ≒ 500万円",
+    points:["中小金属加工業の適正稼働率は80〜90%（85%前後が現実的）","稼働率問題の本質は固定費の回収効率","Aは売上×粗利率で計算しているが、稼働率改善＝追加売上ではない","Cの95%は過負荷（品質低下・メンテナンス不足リスク）","Eの営業利益率ベースの計算は稼働率との関係が間接的"]
+  },
+  timer:240
+},
+{
+  id:5, industry:"製造業", level:"中級",
+  question:"日本の食品製造業全体における年間フードロス（製造段階）の経済損失額をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"食品製造業出荷額35兆円 × ロス率0.5% ≒ 約1,750億円",correct:false},
+    {label:"B",text:"食品製造業出荷額35兆円 × ロス率3% × 原価率60% ≒ 約6,300億円",correct:true},
+    {label:"C",text:"食品廃棄量600万トン × 全量が製造段階 × kg単価200円 ≒ 1.2兆円",correct:false},
+    {label:"D",text:"コンビニ廃棄のみ5万店 × 日500円 × 365日 ≒ 約90億円",correct:false},
+    {label:"E",text:"家庭系ロス300万トン × 単価500円/kg ≒ 1.5兆円",correct:false}
+  ],
+  explanation:{
+    summary:"製造段階のフードロスは、出荷額に対するロス率と原価ベースで推定します。",
+    formula:"経済損失 ≒ 食品製造業出荷額 × ロス率 × 原価率\n= 35兆円 × 3% × 60% ≒ 約6,300億円",
+    points:["食品製造段階でのロス率は約2〜5%とされる","損失額は「出荷価格」ではなく「原価」ベースで計算すべき","Aはロス率0.5%が過少","Cは食品廃棄全量を製造段階としており不正確（家庭系・外食系を含む）","Dはコンビニ＝小売段階であり製造段階ではない"]
+  },
+  timer:240
+},
+{
+  id:6, industry:"製造業", level:"中級",
+  question:"日本の中小製造業（従業員50人以下）におけるDX投資額の業界全体の年間総額をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"中小製造業18万社 × 全社がDX投資 × 平均500万円 ≒ 9,000億円",correct:false},
+    {label:"B",text:"中小製造業18万社 × DX着手率20% × 平均投資額200万円 ≒ 約720億円",correct:true},
+    {label:"C",text:"製造業IT投資3兆円 × 中小比率50% ≒ 1.5兆円",correct:false},
+    {label:"D",text:"中小企業全体のIT投資5兆円 × 製造業比率10% ≒ 5,000億円",correct:false},
+    {label:"E",text:"DX推進企業1万社 × 平均1億円 ≒ 1兆円",correct:false}
+  ],
+  explanation:{
+    summary:"中小製造業のDX投資は「着手率の低さ」が最大のポイントです。全社が投資している前提は非現実的です。",
+    formula:"DX投資総額 ≒ 対象企業数 × DX着手率 × 平均投資額\n= 18万社 × 20% × 200万円 ≒ 720億円",
+    points:["中小企業白書によるとDXに着手している中小企業は2割程度","50人以下規模のDX投資は年間100〜300万円が現実的（クラウド導入・RPA等）","Aは着手率100%前提で過大","Cは大企業のIT投資を含んでおり不適切","平均投資額の設定が推定の精度を左右する"]
+  },
+  timer:240
+},
+{
+  id:7, industry:"製造業", level:"上級",
+  question:"円安（1ドル=110円→150円）が日本の中小自動車部品メーカー（Tier2、年商10億円）の営業利益率に与える影響幅をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"輸出比率30% × 為替差益で売上3億円増 → 営業利益率+30%ポイント改善",correct:false},
+    {label:"B",text:"輸入原材料比率40% × 値上がり分≒1.5億円コスト増 → 営業利益率▲15%ポイント悪化",correct:false},
+    {label:"C",text:"輸出売上増+0.8億円、輸入コスト増▲1.2億円、差引▲0.4億円 → 営業利益率▲4%ポイント悪化",correct:true},
+    {label:"D",text:"Tier2は為替影響を受けない（Tier1が吸収するため）→ 影響ゼロ",correct:false},
+    {label:"E",text:"円安メリットのみ享受し、売上10億円×為替差36%≒3.6億円増 → 利益率+36%ポイント改善",correct:false}
+  ],
+  explanation:{
+    summary:"円安の影響は「輸出メリット」と「輸入コスト増」の両面で分析し、Tier2特有の価格交渉力の弱さも考慮します。",
+    formula:"輸出売上メリット: 10億円 × 輸出比率30% × 為替変動(150-110)/110 ≒ +0.8億円\n輸入コスト増: 10億円 × 原材料比率40% × 輸入依存度50% × 為替変動36% ≒ ▲0.72億円\nさらにTier1からの値下げ圧力で▲0.5億円程度\n差引: ▲0.4億円 → 営業利益率で約▲4%ポイント",
+    points:["円安は輸出企業にプラスだが、輸入原材料コスト増のマイナスもある","Tier2メーカーは価格交渉力が弱く、Tier1からの値下げ圧力を受けやすい","Aは為替差益を売上増と直結しており過大","Dの「影響ゼロ」は非現実的（原材料価格は波及する）","実務では両面の影響を定量的にネットアウトすることが重要"]
+  },
+  timer:300
+},
+{
+  id:8, industry:"製造業", level:"上級",
+  question:"日本の製造業全体が「カーボンニュートラル（2050年目標）」を達成するために必要な年間追加投資額をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"製造業CO2排出量3億トン × 炭素税1万円/トン ≒ 3兆円/年",correct:false},
+    {label:"B",text:"製造業エネルギーコスト15兆円 × 再エネ転換プレミアム30% ÷ 30年 ≒ 約1,500億円/年",correct:false},
+    {label:"C",text:"製造業の設備投資額15兆円 × 脱炭素関連比率20% + 技術開発費 ≒ 約4〜5兆円/年",correct:true},
+    {label:"D",text:"太陽光パネル設置のみで全工場カバー → 設置費10兆円 ÷ 30年 ≒ 約3,300億円/年",correct:false},
+    {label:"E",text:"排出権購入のみ: 3億トン × 5,000円/トン ≒ 1.5兆円/年で達成可能",correct:false}
+  ],
+  explanation:{
+    summary:"カーボンニュートラルには設備更新・プロセス転換・技術開発の複合的投資が必要で、排出権購入や再エネ転換だけでは不十分です。",
+    formula:"年間追加投資 ≒ 設備投資の脱炭素シフト分 + 技術開発投資\n= 15兆円 × 20% + R&D 1〜2兆円 ≒ 4〜5兆円/年",
+    points:["経産省GX戦略では官民合わせて10年間で150兆円規模の投資を想定","製造業の設備投資は年間約15兆円（国内）","脱炭素投資は既存設備の更新サイクルに組み込む必要がある","Aは炭素税≠投資額であり概念が異なる","Eの排出権購入のみは「削減」ではなく「オフセット」に過ぎない"]
+  },
+  timer:300
+},
+// ── 小売業 ──
+{
+  id:9, industry:"小売業", level:"初級",
+  question:"東京都内のコンビニエンスストア1店舗あたりの年間売上高をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"1日来客数800人 × 客単価700円 × 365日 ≒ 約2億円",correct:false},
+    {label:"B",text:"1日来客数1,000人 × 客単価650円 × 365日 ≒ 約2.4億円",correct:true},
+    {label:"C",text:"月商500万円 × 12ヶ月 ≒ 約6,000万円",correct:false},
+    {label:"D",text:"坪効率200万円 × 30坪 ≒ 約6,000万円",correct:false},
+    {label:"E",text:"1日来客数2,000人 × 客単価1,000円 × 365日 ≒ 約7.3億円",correct:false}
+  ],
+  explanation:{
+    summary:"コンビニの売上推定は「来客数 × 客単価 × 営業日数」が基本フレームです。",
+    formula:"年間売上 ≒ 日次来客数 × 客単価 × 365日\n= 1,000人 × 650円 × 365 ≒ 約2.4億円",
+    points:["東京都内コンビニの平均日販は約55〜70万円（年間2〜2.5億円）","客単価はコンビニ業界平均で600〜700円","Aは来客数がやや少なく過少","Cは個人商店レベルの売上でコンビニとしては過少","Eは来客数・客単価ともに過大"]
+  },
+  timer:180
+},
+{
+  id:10, industry:"小売業", level:"初級",
+  question:"日本全国のドラッグストアの年間市場規模（売上高合計）をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"店舗数2万店 × 平均年商3億円 ≒ 約6兆円",correct:false},
+    {label:"B",text:"人口1.2億人 × 年間利用額7万円 ≒ 約8.4兆円",correct:true},
+    {label:"C",text:"大手5社の売上合計3兆円 ≒ 市場全体も約3兆円",correct:false},
+    {label:"D",text:"薬局数6万店 × 平均年商1億円 ≒ 約6兆円",correct:false},
+    {label:"E",text:"世帯数5,300万 × 月間支出5,000円 × 12ヶ月 ≒ 約3.2兆円",correct:false}
+  ],
+  explanation:{
+    summary:"ドラッグストア市場は需要サイド（人口ベース）と供給サイド（店舗数ベース）の両面から検証できます。",
+    formula:"需要サイド: 人口1.2億人 × 年間利用額7万円 ≒ 8.4兆円\n供給サイド: 店舗数約2.2万店 × 平均年商3.5億円 ≒ 7.7兆円\n→ 実績値は約8〜9兆円",
+    points:["ドラッグストア市場は近年成長を続け8兆円超規模","Aは店舗数が少なく平均年商も保守的","Cは大手のみで中堅・地方チェーンが欠落","Dの「薬局」はドラッグストアと調剤薬局を混同","食品・日用品の取扱拡大により1人あたり利用額は上昇傾向"]
+  },
+  timer:180
+},
+{
+  id:11, industry:"小売業", level:"初級",
+  question:"郊外型ホームセンター1店舗の年間売上高をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"売場面積3,000㎡ × 坪効率50万円 ≒ 約4.5億円",correct:false},
+    {label:"B",text:"1日来客数1,500人 × 客単価2,500円 × 365日 ≒ 約13.7億円",correct:false},
+    {label:"C",text:"商圏人口5万人 × 年間利用率40% × 年間利用回数6回 × 客単価3,000円 ≒ 約3.6億円",correct:false},
+    {label:"D",text:"商圏人口10万人 × 年間利用率30% × 利用回数8回 × 客単価2,800円 ≒ 約6.7億円",correct:false},
+    {label:"E",text:"1日来客数800人 × 客単価2,800円 × 営業日数350日 ≒ 約7.8億円（売場3,000㎡規模の標準値）",correct:true}
+  ],
+  explanation:{
+    summary:"ホームセンターは来客数がコンビニほど多くなく、客単価が高い業態です。売場面積と立地特性を考慮します。",
+    formula:"年間売上 ≒ 日次来客数 × 客単価 × 営業日数\n= 800人 × 2,800円 × 350日 ≒ 約7.8億円",
+    points:["郊外型HCの平均年商は5〜10億円程度","坪効率は業界平均で60〜80万円/坪程度","Aの坪効率50万円は低めだが、面積の坪換算（約900坪）に注意","Bは来客数1,500人が過大（ホームセンターは目的買い中心）","季節変動（春のガーデニング・DIY需要等）も考慮すべき"]
+  },
+  timer:180
+},
+{
+  id:12, industry:"小売業", level:"中級",
+  question:"日本のアパレルEC市場において、返品率を考慮した「実質売上高」をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"アパレルEC市場2.5兆円 × 返品率15% → 実質売上2.125兆円",correct:true},
+    {label:"B",text:"アパレル市場全体9兆円 × EC化率30% → EC市場2.7兆円（返品は無視できる水準）",correct:false},
+    {label:"C",text:"アパレルEC市場2.5兆円 × 返品率3% → 実質売上2.425兆円",correct:false},
+    {label:"D",text:"アパレルEC市場5兆円 × 返品率20% → 実質売上4兆円",correct:false},
+    {label:"E",text:"ZOZO売上5,000億円 × 5倍（市場全体） × 返品率10% → 実質売上2.25兆円",correct:false}
+  ],
+  explanation:{
+    summary:"アパレルECでは返品率が利益を大きく左右します。日本の返品率は欧米より低いですが、EC特有の高さがあります。",
+    formula:"実質売上 ≒ EC市場規模 × (1 - 返品率)\n= 2.5兆円 × (1 - 15%) ≒ 2.125兆円",
+    points:["日本のアパレルEC市場は約2〜2.5兆円（EC化率約20%前後）","アパレルECの返品率は日本で10〜20%（欧米は30〜40%）","Cの返品率3%は実店舗水準でECとしては過少","Dは市場規模5兆円が過大","返品コスト（物流費・検品・再販不能分）も含めると利益への影響はさらに大きい"]
+  },
+  timer:240
+},
+{
+  id:13, industry:"小売業", level:"中級",
+  question:"食品スーパー1店舗における年間の廃棄ロス金額（売価ベース）をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"年商15億円 × 廃棄ロス率2.5% ≒ 約3,750万円",correct:true},
+    {label:"B",text:"1日の総菜廃棄30kg × 単価500円/kg × 365日 ≒ 約550万円",correct:false},
+    {label:"C",text:"年商15億円 × 廃棄ロス率0.3% ≒ 約450万円",correct:false},
+    {label:"D",text:"生鮮食品のみ: 年商5億円 × ロス率10% ≒ 約5,000万円",correct:false},
+    {label:"E",text:"来客数2,000人/日 × 1人あたり廃棄負担50円 × 365日 ≒ 約3,650万円",correct:false}
+  ],
+  explanation:{
+    summary:"食品スーパーの廃棄ロスは生鮮・総菜・日配品を中心に、売上高の2〜3%程度が目安です。",
+    formula:"廃棄ロス ≒ 年商 × 廃棄ロス率\n= 15億円 × 2.5% ≒ 3,750万円",
+    points:["食品スーパーの平均年商は10〜20億円","廃棄ロス率は業界平均で2〜4%（売価ベース）","Bは総菜のみで生鮮・日配品の廃棄を含まない","Cの0.3%はコンビニの値引き後ロスに近く、スーパーとしては過少","Eの計算ロジック自体は成り立つが、根拠の「50円/人」に妥当性がない"]
+  },
+  timer:240
+},
+{
+  id:14, industry:"小売業", level:"上級",
+  question:"日本の百貨店業界全体が「外商（法人・富裕層向け営業）」で稼ぐ年間売上高をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"百貨店売上5.5兆円 × 外商比率20% ≒ 約1.1兆円",correct:true},
+    {label:"B",text:"富裕層世帯130万世帯 × 年間百貨店支出500万円 × 外商利用率10% ≒ 約6,500億円",correct:false},
+    {label:"C",text:"百貨店売上5.5兆円 × 外商比率5% ≒ 約2,750億円",correct:false},
+    {label:"D",text:"外商顧客数100万人 × 年間購入額300万円 ≒ 3兆円",correct:false},
+    {label:"E",text:"法人ギフト市場1兆円 × 百貨店シェア30% ≒ 約3,000億円",correct:false}
+  ],
+  explanation:{
+    summary:"百貨店の外商は売上構成の重要な柱であり、店頭売上の減少を補う収益源です。",
+    formula:"外商売上 ≒ 百貨店業界売上 × 外商売上比率\n= 5.5兆円 × 20% ≒ 1.1兆円",
+    points:["百貨店の外商比率は15〜25%（店舗により差が大きい）","外商顧客は少数だが客単価が極めて高い","Cの5%は過少（外商は百貨店経営の柱）","Dは顧客数100万人が過大（外商は厳選された優良顧客）","Eは法人ギフトのみで個人富裕層への外商を含まない"]
+  },
+  timer:300
+},
+{
+  id:15, industry:"小売業", level:"上級",
+  question:"日本のEC物流における「ラストワンマイル」コストの年間総額をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"宅配個数50億個 × 平均配送コスト400円 ≒ 2兆円",correct:false},
+    {label:"B",text:"EC市場20兆円 × 物流コスト比率15% × ラストワンマイル比率50% ≒ 約1.5兆円",correct:true},
+    {label:"C",text:"宅配ドライバー30万人 × 年収400万円 ≒ 1.2兆円（人件費のみ）",correct:false},
+    {label:"D",text:"宅配個数50億個 × 再配達率15% × 再配達コスト200円 ≒ 約1,500億円",correct:false},
+    {label:"E",text:"ヤマト運輸売上2兆円 × EC比率50% ≒ 1兆円",correct:false}
+  ],
+  explanation:{
+    summary:"ラストワンマイルコストはEC物流費全体の中で最大の比率を占め、人件費・車両費・再配達コストを含みます。",
+    formula:"ラストワンマイルコスト ≒ EC市場規模 × 物流コスト比率 × ラストワンマイル比率\n= 20兆円 × 15% × 50% ≒ 1.5兆円",
+    points:["EC市場の物流コスト比率は12〜18%","ラストワンマイルは物流コスト全体の40〜60%を占める","Aは配送コスト400円/個が安すぎる（実際は600〜800円）","Dは再配達コストのみでラストワンマイル全体ではない","再配達率削減が業界全体の課題（年間数千億円のロス）"]
+  },
+  timer:300
+},
+{
+  id:16, industry:"小売業", level:"上級",
+  question:"日本のキャッシュレス決済普及に伴い、小売業全体が負担する年間の決済手数料総額をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"小売業売上150兆円 × キャッシュレス比率40% × 手数料率3% ≒ 約1.8兆円",correct:true},
+    {label:"B",text:"クレジットカード取扱高80兆円 × 手数料率1% ≒ 約8,000億円",correct:false},
+    {label:"C",text:"小売業売上150兆円 × 手数料率3% ≒ 約4.5兆円（全額がキャッシュレスと仮定）",correct:false},
+    {label:"D",text:"QRコード決済のみ: 取扱高10兆円 × 手数料率1.5% ≒ 約1,500億円",correct:false},
+    {label:"E",text:"カード会社手数料収入2兆円 × 小売比率50% ≒ 1兆円",correct:false}
+  ],
+  explanation:{
+    summary:"キャッシュレス決済手数料は小売業の利益を直接圧迫するコストであり、普及率と手数料率の掛け合わせで推定します。",
+    formula:"決済手数料総額 ≒ 小売業売上 × キャッシュレス比率 × 平均手数料率\n= 150兆円 × 40% × 3% ≒ 1.8兆円",
+    points:["日本のキャッシュレス比率は約40%（2024年時点）","加盟店手数料率は業種・規模により2〜5%（平均約3%）","Bはクレジットカードのみで電子マネー・QR決済を含まない","Cはキャッシュレス比率を考慮していない","中小小売業にとって手数料負担は深刻な経営課題"]
+  },
+  timer:300
+},
+// ── 卸売業 ──
+{
+  id:17, industry:"卸売業", level:"初級",
+  question:"日本の食品卸売業の市場規模（年間売上高合計）をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"食品小売市場45兆円 × 卸経由率70% ≒ 約31.5兆円",correct:false},
+    {label:"B",text:"食品小売45兆円 + 外食25兆円 = 70兆円 × 卸経由率60% × 卸マージン込 ≒ 約35兆円",correct:true},
+    {label:"C",text:"食品メーカー出荷額25兆円 × 卸マージン10% ≒ 約2.5兆円",correct:false},
+    {label:"D",text:"三菱食品売上3兆円 × 大手4社で市場の80% → 市場全体≒約15兆円",correct:false},
+    {label:"E",text:"人口1.2億人 × 食費月5万円 × 12ヶ月 ≒ 72兆円（これが卸売市場）",correct:false}
+  ],
+  explanation:{
+    summary:"食品卸売業は小売・外食両方への供給を担うため、最終消費市場から逆算して卸経由率を掛けます。",
+    formula:"市場規模 ≒ (食品小売市場 + 外食市場) × 卸経由率\n= (45兆円 + 25兆円) × 60% ≒ 約35兆円（卸売段階の売上高）",
+    points:["食品卸売業の実際の市場規模は約30〜40兆円","小売のみでなく外食産業向け供給も含める必要がある","Cは「マージン」＝利益額であり、売上高ではない","Dは大手4社のシェアを80%と過大評価","Eは消費者支出額＝小売市場規模であり卸売市場ではない"]
+  },
+  timer:180
+},
+{
+  id:18, industry:"卸売業", level:"初級",
+  question:"地方の中堅食品卸売会社（従業員100人）の営業利益率をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"売上高100億円 × 粗利率15% - 販管費13億円 → 営業利益率約2%",correct:true},
+    {label:"B",text:"売上高100億円 × 粗利率30% - 販管費20億円 → 営業利益率約10%",correct:false},
+    {label:"C",text:"売上高50億円 × 粗利率5% - 販管費2億円 → 営業利益率約0.5%と赤字寸前",correct:false},
+    {label:"D",text:"小売業の営業利益率3%と同等 → 約3%",correct:false},
+    {label:"E",text:"メーカーのリベート収入が主体 → 表面的には赤字だが実質5%",correct:false}
+  ],
+  explanation:{
+    summary:"食品卸売業は薄利多売型のビジネスモデルであり、営業利益率は1〜3%が一般的です。",
+    formula:"営業利益 ≒ 売上高 × 粗利率 - 販管費\n= 100億円 × 15% - 13億円 = 2億円\n営業利益率 = 2億円 ÷ 100億円 = 2%",
+    points:["食品卸の粗利率は12〜18%程度","販管費の大半は物流費と人件費","Bの粗利率30%はメーカーや小売の水準で卸売としては過大","営業利益率1〜3%が業界標準","規模の経済が効きやすく、大手ほど効率が良い傾向"]
+  },
+  timer:180
+},
+{
+  id:19, industry:"卸売業", level:"中級",
+  question:"日本の医薬品卸売業界における年間物流コスト（4大卸合計ベース）をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"医薬品卸売上10兆円 × 物流コスト比率3% ≒ 約3,000億円",correct:true},
+    {label:"B",text:"配送車両5,000台 × 年間運行コスト500万円 ≒ 約250億円",correct:false},
+    {label:"C",text:"医薬品卸売上10兆円 × 物流コスト比率10% ≒ 約1兆円",correct:false},
+    {label:"D",text:"倉庫面積100万㎡ × 坪単価月5,000円 × 12ヶ月 ≒ 約180億円",correct:false},
+    {label:"E",text:"配送先7万件（薬局+病院）× 1回500円 × 年250回 ≒ 約875億円",correct:false}
+  ],
+  explanation:{
+    summary:"医薬品卸の物流コストは温度管理・頻回配送・緊急対応の必要性から、一般卸売業より高い比率になります。",
+    formula:"物流コスト ≒ 医薬品卸売上高 × 物流コスト比率\n= 10兆円 × 3% ≒ 3,000億円",
+    points:["医薬品4大卸（メディパル、アルフレッサ、スズケン、東邦）の合計売上は約10兆円","物流コスト比率は2〜4%（温度管理・緊急配送を含む）","Bは車両コストのみで倉庫・人件費・温度管理費が欠落","Dは倉庫費のみで配送費が含まれない","医薬品物流は毛細血管型配送（多頻度・小口）が特徴"]
+  },
+  timer:240
+},
+{
+  id:20, industry:"卸売業", level:"中級",
+  question:"日本の建設資材卸売業者（年商50億円規模）の在庫回転率と、適正在庫金額をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"在庫回転率12回/年 → 適正在庫 = 50億円÷12 ≒ 約4.2億円",correct:false},
+    {label:"B",text:"在庫回転率6回/年 → 適正在庫 = 売上原価40億円÷6 ≒ 約6.7億円",correct:true},
+    {label:"C",text:"在庫回転率3回/年 → 適正在庫 = 50億円÷3 ≒ 約16.7億円",correct:false},
+    {label:"D",text:"在庫回転率24回/年（JIT方式） → 適正在庫 ≒ 約2億円",correct:false},
+    {label:"E",text:"在庫は持たない（受注仕入方式）→ 在庫ゼロが理想",correct:false}
+  ],
+  explanation:{
+    summary:"在庫回転率は「売上原価÷平均在庫」で計算します。建設資材は納期対応のため一定在庫が必要です。",
+    formula:"適正在庫 = 売上原価 ÷ 在庫回転率\n売上原価 = 50億円 × 原価率80% = 40億円\n適正在庫 = 40億円 ÷ 6回 ≒ 約6.7億円",
+    points:["建設資材卸の在庫回転率は5〜8回/年が一般的","在庫回転率の分子は「売上高」ではなく「売上原価」が正確","Aは分子に売上高を使用、かつ回転率12回は食品卸の水準","Dの24回はJIT製造業の水準で卸売業には適用困難","建設現場の納期要求から一定の在庫保持が不可欠"]
+  },
+  timer:240
+},
+{
+  id:21, industry:"卸売業", level:"中級",
+  question:"日本の電子部品・半導体卸売市場（商社・代理店経由）の年間市場規模をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"日本の電子部品生産額4兆円 × 代理店経由率50% ≒ 約2兆円",correct:false},
+    {label:"B",text:"電子機器製造向け部品調達額10兆円 × 代理店経由率60% ≒ 約6兆円",correct:true},
+    {label:"C",text:"世界半導体市場60兆円 × 日本シェア10% × 全量が卸経由 ≒ 約6兆円",correct:false},
+    {label:"D",text:"マクニカ売上1兆円 × 上位5社で80% → 市場全体≒約6,250億円",correct:false},
+    {label:"E",text:"電子部品メーカー100社 × 平均卸向け売上200億円 ≒ 約2兆円",correct:false}
+  ],
+  explanation:{
+    summary:"電子部品卸売市場は、最終製品メーカーの部品調達額から代理店経由率を掛けて推定します。",
+    formula:"市場規模 ≒ 電子機器製造向け部品調達額 × 代理店経由率\n= 10兆円 × 60% ≒ 約6兆円",
+    points:["日本の電子機器メーカーの部品調達額は約8〜12兆円","技術商社・代理店の経由率は50〜70%（直販除く）","Aは国内生産額のみで輸入部品を含まない","Cは世界市場と日本市場を混同し、半導体≠電子部品全体","Dは上位5社のシェア80%の前提が不正確"]
+  },
+  timer:240
+},
+{
+  id:22, industry:"卸売業", level:"上級",
+  question:"日本の総合商社（大手7社）が食料・農産物分野で年間に取り扱うグロス取扱高をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"日本の食料輸入額10兆円 × 商社経由率60% ≒ 約6兆円",correct:false},
+    {label:"B",text:"大手7社売上合計100兆円 × 食料分野比率8% ≒ 約8兆円",correct:false},
+    {label:"C",text:"食料輸入10兆円 × 商社経由60% + 国内流通関与5兆円 + 海外三国間3兆円 ≒ 約14兆円",correct:true},
+    {label:"D",text:"穀物取扱のみ: 輸入量3,000万トン × トン単価5万円 × 商社経由50% ≒ 約7,500億円",correct:false},
+    {label:"E",text:"商社の食料事業利益2,000億円 ÷ 利益率2% ≒ 約10兆円",correct:false}
+  ],
+  explanation:{
+    summary:"総合商社の食料取扱高は輸入仲介だけでなく、国内流通への関与や三国間貿易も含めて推定します。",
+    formula:"取扱高 ≒ 食料輸入仲介 + 国内流通関与 + 三国間取引\n= 10兆円×60% + 5兆円 + 3兆円 ≒ 約14兆円",
+    points:["総合商社は輸入仲介だけでなくバリューチェーン全体に関与","三国間取引（日本を経由しない取引）が近年拡大","Aは輸入仲介のみで国内・三国間を含まない","Dは穀物のみで水産・畜産・加工食品を含まない","商社の「売上高」と「取扱高（グロス）」は大きく異なる点に注意"]
+  },
+  timer:300
+},
+{
+  id:23, industry:"卸売業", level:"上級",
+  question:"日本のBtoB EC（企業間電子商取引）における卸売業の取扱額と、従来型卸売業への売上代替効果をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"BtoB EC市場400兆円の全額が卸売代替 → 卸売業は消滅する",correct:false},
+    {label:"B",text:"BtoB EC市場400兆円 × 卸売関連比率30% × 純粋な代替率10% ≒ 約12兆円が卸売から流出",correct:true},
+    {label:"C",text:"BtoC EC 20兆円と同規模 → BtoB ECも20兆円程度、影響軽微",correct:false},
+    {label:"D",text:"卸売業売上400兆円 × EC化率50% ≒ 200兆円がEC経由（卸売業者は中抜きされる）",correct:false},
+    {label:"E",text:"モノタロウ売上2,000億円 × 100倍 ≒ 20兆円が卸売代替額",correct:false}
+  ],
+  explanation:{
+    summary:"BtoB EC市場は大きいですが、その多くは既存の卸売取引のデジタル化であり、全てが卸売代替ではありません。",
+    formula:"卸売代替額 ≒ BtoB EC市場 × 卸売関連比率 × 純粋代替率\n= 400兆円 × 30% × 10% ≒ 約12兆円",
+    points:["経産省統計のBtoB EC市場は約400兆円だが大半はEDI（電子データ交換）","真に卸売機能を代替するプラットフォーム型ECは一部","Aは全額代替とする極論","Cは BtoC とBtoB の規模感を混同（BtoBはBtoCの20倍以上）","卸売業の付加価値（物流・与信・情報）はECだけでは完全代替困難"]
+  },
+  timer:300
+},
+// ── サービス業 ──
+{
+  id:24, industry:"サービス業", level:"初級",
+  question:"日本の理美容業界の年間市場規模をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"理美容室25万店 × 平均年商1,500万円 ≒ 約3.75兆円",correct:false},
+    {label:"B",text:"利用者人口1億人 × 年間利用回数4回 × 平均単価5,000円 ≒ 約2兆円",correct:true},
+    {label:"C",text:"女性6,000万人 × 年6回 × 単価8,000円 ≒ 約2.9兆円",correct:false},
+    {label:"D",text:"1,000円カット専門店の普及で市場縮小 → 約5,000億円",correct:false},
+    {label:"E",text:"美容師50万人 × 年収300万円 ≒ 1.5兆円（人件費＝市場規模）",correct:false}
+  ],
+  explanation:{
+    summary:"理美容業界は「利用者数 × 利用頻度 × 客単価」で推定するのが基本フレームです。",
+    formula:"市場規模 ≒ 利用者数 × 年間利用回数 × 平均客単価\n= 1億人 × 4回 × 5,000円 ≒ 約2兆円",
+    points:["理美容市場は約2〜2.2兆円が実績値","男女・年齢層で利用頻度と単価が異なるため平均化が必要","Aの1店舗1,500万円は過大（平均は800〜1,200万円程度）","Cは女性のみで男性を含まない","Eの人件費＝市場規模は不正確（材料費・家賃等も含む）"]
+  },
+  timer:180
+},
+{
+  id:25, industry:"サービス業", level:"初級",
+  question:"日本のフィットネスジム・スポーツクラブの年間市場規模をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"会員数800万人 × 月会費8,000円 × 12ヶ月 ≒ 約7,680億円",correct:true},
+    {label:"B",text:"施設数1万店 × 平均年商1億円 ≒ 約1兆円",correct:false},
+    {label:"C",text:"人口1.2億人 × 参加率20% × 年間支出3万円 ≒ 約7,200億円",correct:false},
+    {label:"D",text:"大手3社売上合計3,000億円 ≒ 市場全体の大半",correct:false},
+    {label:"E",text:"人口1.2億人 × 参加率3% × 月会費1万円 × 12ヶ月 ≒ 約432億円",correct:false}
+  ],
+  explanation:{
+    summary:"フィットネス市場は「会員数 × 月会費 × 12ヶ月」が基本フレームです。日本の参加率は約6〜7%です。",
+    formula:"市場規模 ≒ 会員数 × 平均月会費 × 12ヶ月\n= 800万人 × 8,000円 × 12 ≒ 約7,680億円",
+    points:["日本のフィットネス市場は約7,000〜8,000億円","会員数は約800万人（人口の約6〜7%）","Cの参加率20%は欧米水準で日本は低い","Eの参加率3%は過少","24時間ジム・パーソナルジムの台頭で市場構造が変化中"]
+  },
+  timer:180
+},
+{
+  id:26, industry:"サービス業", level:"中級",
+  question:"日本のITコンサルティング市場の年間市場規模をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"大企業3,000社 × 年間IT投資50億円 × コンサル比率5% ≒ 約7,500億円",correct:false},
+    {label:"B",text:"企業のIT投資額15兆円 × コンサル関与率15% × 上流比率30% ≒ 約6,750億円",correct:true},
+    {label:"C",text:"コンサルタント人数5万人 × 年間売上単価3,000万円 ≒ 約1.5兆円",correct:false},
+    {label:"D",text:"アクセンチュア日本売上5,000億円 ≒ これが市場全体",correct:false},
+    {label:"E",text:"SI市場10兆円 × 全てにコンサルが関与 → 10兆円",correct:false}
+  ],
+  explanation:{
+    summary:"ITコンサルティング市場は、企業のIT投資全体に対するコンサルティング関与率から推定します。",
+    formula:"市場規模 ≒ IT投資額 × コンサル関与率 × 上流工程比率\n= 15兆円 × 15% × 30% ≒ 約6,750億円",
+    points:["日本企業のIT投資総額は約13〜17兆円","全てのIT投資にコンサルが関与するわけではない","Aは大企業のみで中堅企業を含まない","Cのコンサルタント人数5万人は過大","Eは「SI市場＝コンサル市場」としており不正確"]
+  },
+  timer:240
+},
+{
+  id:27, industry:"サービス業", level:"中級",
+  question:"日本の人材紹介業界（有料職業紹介）の年間市場規模と、紹介1件あたりの平均手数料をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"転職者数300万人 × 全員が紹介経由 × 手数料100万円 ≒ 3兆円",correct:false},
+    {label:"B",text:"転職者300万人 × 紹介経由率15% × 平均年収500万円 × 手数料率30% ≒ 約6,750億円",correct:true},
+    {label:"C",text:"リクルート売上3兆円 × 人材紹介比率50% ≒ 1.5兆円",correct:false},
+    {label:"D",text:"有効求人数200万件 × 成約率5% × 手数料50万円 ≒ 約500億円",correct:false},
+    {label:"E",text:"人材紹介会社2万社 × 平均年商5,000万円 ≒ 約1兆円",correct:false}
+  ],
+  explanation:{
+    summary:"人材紹介市場は「紹介経由の転職者数 × 平均手数料」で推定します。手数料は年収の30%前後が相場です。",
+    formula:"市場規模 ≒ 転職者数 × 紹介経由率 × 平均年収 × 手数料率\n= 300万人 × 15% × 500万円 × 30% ≒ 約6,750億円\n（1件あたり手数料 = 500万円 × 30% = 150万円）",
+    points:["年間転職者数は約300万人（労働力調査ベース）","人材紹介経由は全転職者の10〜20%程度","手数料率は年収の25〜35%（30%が一般的）","Aは全転職者が紹介経由としており過大","Dは成約率と手数料の設定が不適切"]
+  },
+  timer:240
+},
+{
+  id:28, industry:"サービス業", level:"上級",
+  question:"日本の介護業界における人材不足の経済損失（機会損失を含む）の年間総額をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"不足人数25万人 × 1人あたり介護サービス提供額400万円 ≒ 約1兆円の機会損失",correct:true},
+    {label:"B",text:"介護職員の離職率15% × 採用コスト50万円 × 対象200万人 ≒ 約1,500億円",correct:false},
+    {label:"C",text:"介護報酬12兆円 × 人手不足による稼働率低下5% ≒ 約6,000億円",correct:false},
+    {label:"D",text:"外国人介護人材1万人 × 受入コスト200万円 ≒ 約200億円",correct:false},
+    {label:"E",text:"介護離職者10万人 × 平均年収400万円 ≒ 約4,000億円（家族の経済損失）",correct:false}
+  ],
+  explanation:{
+    summary:"介護人材不足の経済損失は、不足人数が提供できたはずのサービス対価（機会損失）として推定します。",
+    formula:"経済損失 ≒ 不足人数 × 1人あたり年間サービス提供額\n= 25万人 × 400万円 ≒ 約1兆円",
+    points:["2025年時点で介護人材は約25〜30万人不足と推計","介護職員1人あたりの年間サービス提供額は300〜500万円","Bは採用コストのみで機会損失を含まない","Cは稼働率低下の影響だが、人手不足の間接影響も含めるべき","Eの介護離職による家族の経済損失は別次元の問題（両方合算すると影響はさらに大きい）"]
+  },
+  timer:300
+},
+{
+  id:29, industry:"サービス業", level:"上級",
+  question:"日本のSaaS市場の年間市場規模と、中小企業の1社あたり平均SaaS支出額をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"企業のクラウド支出5兆円 × SaaS比率60% ≒ 3兆円、中小1社あたり ≒ 月2万円",correct:false},
+    {label:"B",text:"SaaS利用企業200万社 × 平均年間支出60万円 ≒ 約1.2兆円、中小1社 ≒ 月3〜5万円",correct:true},
+    {label:"C",text:"世界SaaS市場30兆円 × 日本比率3% ≒ 約9,000億円、中小1社 ≒ 月1万円",correct:false},
+    {label:"D",text:"大企業4,000社 × 年間5億円 ≒ 2兆円（中小企業のSaaS利用は無視できる水準）",correct:false},
+    {label:"E",text:"IT投資15兆円 × SaaS比率30% ≒ 4.5兆円、中小1社 ≒ 月10万円",correct:false}
+  ],
+  explanation:{
+    summary:"SaaS市場は利用企業数と平均支出額のボトムアップ推定が有効です。中小企業の利用実態を正確に捉えることがポイントです。",
+    formula:"SaaS市場規模 ≒ SaaS利用企業数 × 平均年間支出\n= 200万社 × 60万円 ≒ 約1.2兆円\n中小企業1社あたり: 月額3〜5万円（会計・勤怠・CRM等3〜5サービス）",
+    points:["日本のSaaS市場は約1〜1.5兆円規模","中小企業のSaaS利用は急速に拡大中だが単価は低い","Dは大企業のみで中小企業市場を無視","Eはクラウド全体（IaaS/PaaS含む）とSaaSを混同","中小企業は月額3,000〜10,000円のサービスを3〜5個利用が典型的"]
+  },
+  timer:300
+},
+{
+  id:30, industry:"サービス業", level:"上級",
+  question:"日本の「コンサルティング業界全体（経営・IT・人事・財務等）」の年間市場規模と、GDP比率をフェルミ推定せよ。",
+  options:[
+    {label:"A",text:"コンサルタント20万人 × 平均売上単価2,000万円 ≒ 4兆円、GDP比0.7%",correct:true},
+    {label:"B",text:"大手4社（MBB+アクセンチュア）日本売上合計1兆円 ≒ 市場全体も約1兆円",correct:false},
+    {label:"C",text:"企業の外部委託費10兆円 × コンサル比率50% ≒ 5兆円、GDP比1%",correct:false},
+    {label:"D",text:"米国コンサル市場30兆円 × GDP比率換算 → 日本は10兆円規模",correct:false},
+    {label:"E",text:"中小企業診断士5万人 × 平均年収600万円 ≒ 約3,000億円がコンサル市場全体",correct:false}
+  ],
+  explanation:{
+    summary:"コンサル市場は「コンサルタント人数 × 1人あたり売上」のボトムアップ推定が有効です。",
+    formula:"市場規模 ≒ コンサルタント人数 × 平均売上単価\n= 20万人 × 2,000万円 ≒ 4兆円\nGDP比率 = 4兆円 ÷ 560兆円 ≒ 約0.7%",
+    points:["日本のコンサル市場は約3〜5兆円と推計される","GDP比率は米国(約1.5%)より低い0.5〜1.0%程度","Bは大手のみで中堅・ブティック系・個人事務所を含まない","Dは日米のコンサル浸透度の違いを無視","Eは中小企業診断士のみでIT・戦略・人事コンサルを含まない"]
+  },
+  timer:300
+}
+];
+
+// ===== APP STATE =====
+let state = {
+  page:'home',
+  quizStarted:false,
+  currentQ:null,
+  answered:false,
+  selectedIdx:null,
+  timerInterval:null,
+  timerRemaining:0,
+  pool:[],          // remaining question indices
+  sessionCorrect:0,
+  sessionTotal:0,
+  historyFilter:'all'
+};
+
+// ===== LOCALSTORAGE =====
+function getHistory(){
+  try{return JSON.parse(localStorage.getItem('fermi_history')||'[]')}catch{return[]}
+}
+function saveHistory(h){localStorage.setItem('fermi_history',JSON.stringify(h))}
+function addHistory(q,correct){
+  const h=getHistory();
+  h.unshift({date:new Date().toISOString(),qId:q.id,title:q.question.slice(0,40)+'…',industry:q.industry,level:q.level,correct});
+  saveHistory(h);
+}
+
+// ===== POOL MANAGEMENT =====
+function initPool(){
+  state.pool=[...Array(QUESTIONS.length).keys()];
+  shuffle(state.pool);
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}}
+function nextFromPool(){
+  if(state.pool.length===0) return null;
+  return state.pool.shift();
+}
+
+// ===== NAVIGATION =====
+function showPage(p){
+  state.page=p;
+  document.querySelectorAll('.nav-btn').forEach((b,i)=>{
+    b.classList.toggle('active',['home','quiz','history'][i]===p);
+  });
+  document.getElementById('page-home').style.display=p==='home'?'':'none';
+  document.getElementById('page-quiz').style.display=p==='quiz'?'':'none';
+  document.getElementById('page-history').style.display=p==='history'?'':'none';
+  if(p==='home') renderHome();
+  if(p==='quiz') renderQuiz();
+  if(p==='history') renderHistory();
+}
+
+// ===== HOME PAGE =====
+function renderHome(){
+  const h=getHistory();
+  const total=h.length;
+  const correct=h.filter(x=>x.correct).length;
+  const rate=total?Math.round(correct/total*100):0;
+  const unique=new Set(h.map(x=>x.qId)).size;
+
+  document.getElementById('page-home').innerHTML=`
+    <div class="stats-grid fade-in">
+      <div class="stat-card"><div class="num gold">${total}</div><div class="label">総回答数</div></div>
+      <div class="stat-card"><div class="num green">${rate}%</div><div class="label">正答率</div></div>
+      <div class="stat-card"><div class="num blue">${unique}/30</div><div class="label">到達問題数</div></div>
+      <div class="stat-card"><div class="num gold">${state.sessionCorrect}/${state.sessionTotal}</div><div class="label">今回のセッション</div></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>全問制覇への進捗</span><span>${unique}/30問</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${unique/30*100}%"></div></div>
+    </div>
+    <div class="card start-screen fade-in">
+      <h2>フェルミ推定の思考力を磨く</h2>
+      <p>中小企業診断士試験に求められる「論理構築力」と「数値感覚」を<br>4業界・3レベル・全30問の演習で徹底トレーニング。</p>
+      <div class="start-grid">
+        <div class="item"><strong>製造業（8問）</strong>部品市場・設備稼働率・DX投資・カーボンニュートラル等</div>
+        <div class="item"><strong>小売業（8問）</strong>店舗売上・EC返品率・ラストワンマイル・決済手数料等</div>
+        <div class="item"><strong>卸売業（7問）</strong>食品卸・医薬品物流・在庫回転・BtoB EC等</div>
+        <div class="item"><strong>サービス業（7問）</strong>理美容・人材紹介・介護人材・SaaS・コンサル市場等</div>
+      </div>
+      <button class="start-btn" onclick="startQuiz()">演習を開始する</button>
+    </div>
+  `;
+}
+
+// ===== QUIZ =====
+function startQuiz(){
+  initPool();
+  state.quizStarted=true;
+  state.sessionCorrect=0;
+  state.sessionTotal=0;
+  loadNextQuestion();
+  showPage('quiz');
+}
+
+function loadNextQuestion(){
+  clearTimer();
+  state.answered=false;
+  state.selectedIdx=null;
+  const idx=nextFromPool();
+  if(idx===null){
+    renderComplete();
+    return;
+  }
+  state.currentQ=QUESTIONS[idx];
+  renderQuiz();
+}
+
+function renderQuiz(){
+  const el=document.getElementById('page-quiz');
+  if(!state.quizStarted){
+    el.innerHTML=`<div class="card start-screen fade-in">
+      <h2>演習を開始しましょう</h2>
+      <p>ダッシュボードの「演習を開始する」ボタン、<br>またはこちらからスタートできます。</p>
+      <button class="start-btn" onclick="startQuiz()">ランダム出題で開始</button>
+    </div>`;
+    return;
+  }
+  const q=state.currentQ;
+  if(!q) return;
+
+  const levelClass=q.level==='初級'?'badge-beginner':q.level==='中級'?'badge-intermediate':'badge-advanced';
+  const timerSec=q.timer;
+  const remaining=30-state.pool.length;
+
+  let html=`<div class="card fade-in">
+    <div class="q-header">
+      <span class="badge badge-industry">${q.industry}</span>
+      <span class="badge ${levelClass}">${q.level}</span>
+      <span class="q-number">Q${remaining} / 30</span>
+    </div>
+    <p class="q-text">${q.question}</p>
+    <div class="timer-wrap" id="timer-wrap">
+      <span class="timer-icon">⏱</span>
+      <div class="timer-bar-outer"><div class="timer-bar-inner" id="timer-bar" style="width:100%"></div></div>
+      <span class="timer-text" id="timer-text">${formatTime(timerSec)}</span>
+    </div>
+    <div class="options" id="options">`;
+
+  q.options.forEach((o,i)=>{
+    let cls='opt-btn';
+    if(state.answered){
+      if(o.correct) cls+=' correct';
+      else if(i===state.selectedIdx) cls+=' wrong';
+    }
+    html+=`<button class="${cls}" ${state.answered?'disabled':''} onclick="selectAnswer(${i})">
+      <span class="opt-label">${o.label}</span>
+      <span>${o.text}</span>
+    </button>`;
+  });
+  html+=`</div>`;
+
+  if(state.answered){
+    const exp=q.explanation;
+    html+=`<div class="explanation fade-in">
+      <h4>📖 模範解答・思考プロセス</h4>
+      <p>${exp.summary}</p>
+      <div class="formula">${exp.formula}</div>
+      <ul>${exp.points.map(p=>`<li>${p}</li>`).join('')}</ul>
+    </div>
+    <button class="next-btn" onclick="loadNextQuestion()">次の問題へ →</button>`;
+  }
+
+  html+=`</div>`;
+  el.innerHTML=html;
+
+  if(!state.answered) startTimer(timerSec);
+}
+
+function selectAnswer(idx){
+  if(state.answered) return;
+  state.answered=true;
+  state.selectedIdx=idx;
+  state.sessionTotal++;
+  clearTimer();
+  const q=state.currentQ;
+  const correct=q.options[idx].correct;
+  if(correct) state.sessionCorrect++;
+  addHistory(q,correct);
+  renderQuiz();
+}
+
+// ===== TIMER =====
+function startTimer(sec){
+  state.timerRemaining=sec;
+  const total=sec;
+  state.timerInterval=setInterval(()=>{
+    state.timerRemaining--;
+    const bar=document.getElementById('timer-bar');
+    const txt=document.getElementById('timer-text');
+    if(!bar||!txt){clearTimer();return}
+    const pct=Math.max(0,state.timerRemaining/total*100);
+    bar.style.width=pct+'%';
+    if(pct<20) bar.classList.add('warn');
+    txt.textContent=formatTime(state.timerRemaining);
+    if(state.timerRemaining<=0){
+      clearTimer();
+      txt.textContent='TIME UP';
+    }
+  },1000);
+}
+function clearTimer(){if(state.timerInterval){clearInterval(state.timerInterval);state.timerInterval=null}}
+function formatTime(s){if(s<=0)return'0:00';return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
+
+// ===== COMPLETE =====
+function renderComplete(){
+  const rate=state.sessionTotal?Math.round(state.sessionCorrect/state.sessionTotal*100):0;
+  let grade='C';
+  if(rate>=90) grade='S';
+  else if(rate>=80) grade='A';
+  else if(rate>=70) grade='B';
+
+  document.getElementById('page-quiz').innerHTML=`
+    <div class="card complete-screen fade-in">
+      <h2>🎉 全30問 完走！</h2>
+      <div class="big-score" style="color:${rate>=70?'var(--green)':'var(--red)'}">${rate}%</div>
+      <p style="color:var(--slate);margin-bottom:.5rem">正答数: ${state.sessionCorrect} / ${state.sessionTotal}</p>
+      <p style="color:var(--gold);font-size:1.2rem;font-weight:700;margin-bottom:1.5rem">評価: ${grade}ランク</p>
+      <p style="color:var(--slate);font-size:.85rem;margin-bottom:1.5rem">
+        ${rate>=80?'素晴らしい数値感覚です。実践でも活かせるレベルです。':rate>=60?'基礎力は十分です。上級問題の復習で更なる向上を目指しましょう。':'基本フレームワークの復習を推奨します。業界別の数値感覚を強化しましょう。'}
+      </p>
+      <button class="start-btn" onclick="startQuiz()">もう一度チャレンジ</button>
+      <button class="next-btn" style="margin-left:.5rem;background:var(--navy-mid);color:var(--white);border:1px solid var(--card-border)" onclick="showPage('home')">ダッシュボードへ</button>
+    </div>`;
+}
+
+// ===== HISTORY =====
+function renderHistory(){
+  const h=getHistory();
+  const el=document.getElementById('page-history');
+
+  const filters=['all','製造業','小売業','卸売業','サービス業'];
+  let filtered=state.historyFilter==='all'?h:h.filter(x=>x.industry===state.historyFilter);
+
+  let html=`<div class="card fade-in">
+    <h3 style="font-size:1rem;font-weight:600;margin-bottom:1rem;color:var(--gold)">学習履歴</h3>
+    <div class="filter-chips">
+      ${filters.map(f=>`<button class="chip ${state.historyFilter===f?'active':''}" onclick="setHistoryFilter('${f}')">${f==='all'?'すべて':f}</button>`).join('')}
+    </div>
+    <div class="history-controls">
+      <span style="font-size:.78rem;color:var(--slate)">${filtered.length}件の記録</span>
+      <span style="flex:1"></span>
+      ${h.length?`<button class="del-all-btn" onclick="clearAllHistory()">全履歴を削除</button>`:''}
+    </div>`;
+
+  if(filtered.length===0){
+    html+=`<div class="empty-state"><div class="icon">📊</div><p>まだ学習履歴がありません。<br>演習を開始して記録を積み上げましょう。</p></div>`;
+  } else {
+    html+=`<div style="overflow-x:auto"><table class="history-table">
+      <thead><tr><th>日時</th><th>業界</th><th>レベル</th><th>問題</th><th>結果</th><th></th></tr></thead><tbody>`;
+    filtered.forEach((r,i)=>{
+      const d=new Date(r.date);
+      const ds=`${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+      const origIdx=h.indexOf(r);
+      html+=`<tr>
+        <td style="white-space:nowrap;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--slate)">${ds}</td>
+        <td>${r.industry}</td>
+        <td>${r.level}</td>
+        <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.title}</td>
+        <td class="${r.correct?'result-correct':'result-wrong'}">${r.correct?'✓ 正解':'✗ 不正解'}</td>
+        <td><button class="del-row-btn" onclick="deleteHistoryItem(${origIdx})">削除</button></td>
+      </tr>`;
+    });
+    html+=`</tbody></table></div>`;
+  }
+  html+=`</div>`;
+  el.innerHTML=html;
+}
+
+function setHistoryFilter(f){state.historyFilter=f;renderHistory()}
+function deleteHistoryItem(idx){
+  const h=getHistory();
+  h.splice(idx,1);
+  saveHistory(h);
+  renderHistory();
+}
+function clearAllHistory(){
+  if(!confirm('全ての学習履歴を削除しますか？')) return;
+  saveHistory([]);
+  renderHistory();
+}
+
+// ===== INIT =====
+showPage('home');
+</script>
+</body>
+</html>
